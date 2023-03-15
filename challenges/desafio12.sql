@@ -1,12 +1,21 @@
-SELECT al.nome AS album, COUNT(f.fk_id_cancao) AS favoritadas
+SELECT 
+  a.nome AS artista, 
+  CASE
+    WHEN COUNT(f.fk_id_cancao) >= 5 THEN "A"
+    WHEN COUNT(f.fk_id_cancao) >= 3 THEN "B"
+    WHEN COUNT(f.fk_id_cancao) >= 1 THEN "C"
+    ELSE "-"
+  END AS ranking
 FROM
-  SpotifyClone.album AS al
+  SpotifyClone.artista AS a
     INNER JOIN
-  SpotifyClone.favoritas AS f
+  SpotifyClone.album AS al 
+  ON al.fk_id_artista = a.id_artista
     INNER JOIN
-  SpotifyClone.cancao AS c
-ON
-  al.id_album = c.fk_id_album AND c.id_cancao = f.fk_id_cancao
-GROUP BY album
-ORDER BY favoritadas DESC, album
-LIMIT 3;
+  SpotifyClone.cancao AS c 
+  ON c.fk_id_album = al.id_album
+    LEFT JOIN
+  SpotifyClone.favoritas AS f 
+  ON f.fk_id_cancao = c.id_cancao
+GROUP BY artista
+ORDER BY COUNT(f.fk_id_cancao) DESC , artista;
